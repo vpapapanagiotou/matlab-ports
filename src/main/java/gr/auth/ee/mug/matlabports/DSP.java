@@ -56,6 +56,10 @@ public final class DSP {
      * <p>
      * MATLAB:
      * <pre>{@code r = corr(x(:), y(:));}</pre>
+     *
+     * @param x The first input array
+     * @param y The second input array
+     * @return The coefficient value
      */
     public static double corr(@Nonnull double[] x, @Nonnull double[] y) {
         checkEqualLength(x, y);

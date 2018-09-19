@@ -50,9 +50,7 @@ public final class Various {
     }
 
     /**
-     * For a given x, find the smallest integer b so that
-     * x <= 2^b
-     * and return 2^b.
+     * For a given x, find the smallest integer b so that x &lt;= 2^b and return 2^b.
      *
      * @param x The given x
      * @return 2^b

@@ -10,6 +10,11 @@ public class ToolsMatrix {
 
     /**
      * Returns a sub matrix, with l arrays starting from the n-th.
+     *
+     * @param x The input matrix
+     * @param n The index to start copying from
+     * @param l The length to copy
+     * @return The selected sub-matrix
      */
     public static double[][] getRange(double[][] x, int n, int l) {
 
@@ -23,7 +28,13 @@ public class ToolsMatrix {
     }
 
     /**
-     * Returns a sub matrix, with the same number of arrays. However, items from n up to (and without) n+l are returned in each array.
+     * Returns a sub matrix, with the same number of arrays. However, items from n up to
+     * (and without) n+l are returned in each array.
+     *
+     * @param x The input matrix
+     * @param n The index to start copying from
+     * @param l The index until which to copy (non-inclusive)
+     * @return The selected sub-matrix
      */
     public static double[][] getRange2(double[][] x, int n, int l) {
 

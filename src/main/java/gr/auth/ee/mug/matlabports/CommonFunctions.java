@@ -20,6 +20,8 @@ public final class CommonFunctions {
      * <p>
      * MATLAB:
      * <pre>{@code x = abs(x);}</pre>
+     *
+     * @param x The input array
      */
     public static void absInPlace(@Nonnull double[] x) {
         for (int i = 0; i < x.length; i++) {
