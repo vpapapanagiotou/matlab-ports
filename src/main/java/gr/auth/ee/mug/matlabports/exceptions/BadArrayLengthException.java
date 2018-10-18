@@ -4,12 +4,12 @@ import javax.annotation.Nullable;
 
 
 @SuppressWarnings({"unused", "WeakerAccess"})
-public class InvalidArrayLength extends RuntimeException {
-    public InvalidArrayLength() {
+public class BadArrayLengthException extends RuntimeException {
+    public BadArrayLengthException() {
         super();
     }
 
-    public InvalidArrayLength(@Nullable String message) {
+    public BadArrayLengthException(@Nullable String message) {
         super(message);
     }
 }

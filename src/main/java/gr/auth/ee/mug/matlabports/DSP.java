@@ -1,16 +1,23 @@
 package gr.auth.ee.mug.matlabports;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
 
+import gr.auth.ee.mug.matlabports.exceptions.BadArrayLengthException;
 import gr.auth.ee.mug.matlabports.exceptions.LengthMismatchException;
+import gr.auth.ee.mug.matlabports.exceptions.UnknownTimeUnitException;
 
 import static gr.auth.ee.mug.matlabports.ArithmeticOperators.add;
 import static gr.auth.ee.mug.matlabports.Checks.checkEqualLength;
+import static gr.auth.ee.mug.matlabports.CommonFunctions.diff;
 import static gr.auth.ee.mug.matlabports.CommonFunctions.innerProduct;
 import static gr.auth.ee.mug.matlabports.CommonFunctions.mean;
 import static gr.auth.ee.mug.matlabports.CommonFunctions.normL2;
+import static gr.auth.ee.mug.matlabports.SelectorsSetters.createSelector;
+import static gr.auth.ee.mug.matlabports.SelectorsSetters.select;
 import static gr.auth.ee.mug.matlabports.Tools.toPrimitive;
 import static java.lang.Math.max;
 
@@ -276,6 +283,78 @@ public final class DSP {
     public static double[] ero1d(@Nonnull double[] x, int m) {
         // TODO This is not checked yet.
         return ero1d(x, m, false);
+    }
+
+    /**
+     * Estimates the sampling frequency (in Hz) from an array of timestamps.
+     *
+     * @param t The timestamps (in sec)
+     * @return The estimated sampling frequency
+     */
+    public static double estimateFs(@Nonnull long[] t) {
+        try {
+            return estimateFs(t, TimeUnit.SECONDS);
+        } catch (UnknownTimeUnitException e) {
+            // this can never happen
+            return -1;
+        }
+    }
+
+    /**
+     * Estimates the sampling frequency (in Hz) from an array of timestamps.
+     *
+     * @param t        The timestamps
+     * @param timeUnit The timestamps time unit
+     * @return The estimated sampling frequency
+     */
+    public static double estimateFs(@Nonnull long[] t, @Nonnull TimeUnit timeUnit)
+            throws UnknownTimeUnitException {
+
+        if (t.length < 2) {
+            throw new BadArrayLengthException("Too short array t; is " + t.length + " (should be >= 2)");
+        }
+
+        final double timeFactor;
+        switch (timeUnit) {
+            case NANOSECONDS:
+                timeFactor = 1e-9;
+                break;
+            case MICROSECONDS:
+                timeFactor = 1e-6;
+                break;
+            case MILLISECONDS:
+                timeFactor = 1e-3;
+                break;
+            case SECONDS:
+                timeFactor = 1;
+                break;
+            case MINUTES:
+                timeFactor = 60;
+                break;
+            case HOURS:
+                timeFactor = 3600;
+                break;
+            case DAYS:
+                timeFactor = 24 * 3600;
+                break;
+            default:
+                throw new UnknownTimeUnitException();
+        }
+
+        final double[] tSec = new double[t.length];
+        for (int i = 0; i < t.length; i++) {
+            tSec[i] = t[i] * timeFactor;
+        }
+
+        final double[] dt = diff(tSec);
+        Arrays.sort(dt);
+        final int n = dt.length;
+        final int i1 = (int) Math.round(.1 * n);
+        final int i2 = (int) Math.round(.9 * n) - 1;
+
+        final boolean[] bs = createSelector(i1, 1, i2, dt.length);
+        final double[] sdt = select(dt, bs);
+        return 1 / mean(sdt);
     }
 
     /**

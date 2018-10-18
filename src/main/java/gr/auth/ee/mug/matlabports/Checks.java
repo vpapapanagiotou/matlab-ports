@@ -19,6 +19,20 @@ public final class Checks {
         return checkEqualLength(x, y, true);
     }
 
+    public static boolean checkEqualLength(@Nonnull long[] x, @Nonnull boolean[] y) {
+        return checkEqualLength(x, y, true);
+    }
+
+    public static boolean checkEqualLength(@Nonnull long[] x, @Nonnull boolean[] y, boolean abort) {
+        if (x.length == y.length) {
+            return true;
+        } else if (abort) {
+            throw new LengthMismatchException();
+        } else {
+            return false;
+        }
+    }
+
     public static boolean checkEqualLength(@Nonnull double[] x, @Nonnull double[] y, boolean abort) {
         if (x.length == y.length) {
             return true;

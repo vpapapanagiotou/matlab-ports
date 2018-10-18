@@ -19,7 +19,8 @@ public final class SelectorsSetters {
      * Create a boolean selector. Negative steps are supported.
      * <p>
      * MATLAB:
-     * <pre>{@code b = start:step:stop;}</pre>
+     * <pre>{@code b = false([n, 1]);
+     * b(start:step:stop) = true;}</pre>
      * Note - you can use {@code END} as MATLAB's end.
      *
      * @param start The index of the first item to be selected.
@@ -198,6 +199,37 @@ public final class SelectorsSetters {
 
         final int n = sum(b);
         boolean[] y = new boolean[n];
+
+        // Loop and select
+        int i = 0;
+        int p = 0;
+        while (p < n) {
+            if (b[i]) {
+                y[p] = x[i];
+                p++;
+            }
+            i++;
+        }
+
+        return y;
+    }
+
+    /**
+     * Select from an array using a boolean selector.
+     * <p>
+     * MATLAB:
+     * <pre>{@code y = x(b);}</pre>
+     *
+     * @param x The array to select from.
+     * @param b A boolean selector.
+     * @return The selected items.
+     */
+    @Nonnull
+    public static long[] select(@Nonnull long[] x, @Nonnull boolean[] b) {
+        checkEqualLength(x, b);
+
+        final int n = sum(b);
+        long[] y = new long[n];
 
         // Loop and select
         int i = 0;
