@@ -31,11 +31,11 @@ public final class SelectorsSetters {
      */
     @Nonnull
     public static boolean[] createSelector(int start, int step, int stop, int n) {
-        if (start == END) {
-            start = n - 1;
+        if (start < 0) {
+            start = n + start;
         }
-        if (stop == END) {
-            stop = n - 1;
+        if (stop < 0 ) {
+            stop = n + stop;
         }
 
         final boolean[] b = new boolean[n];

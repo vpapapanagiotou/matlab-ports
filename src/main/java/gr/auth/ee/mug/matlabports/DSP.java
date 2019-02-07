@@ -407,7 +407,7 @@ public final class DSP {
             }
         }
 
-        if (peakIndices1.size() == 0) {
+        if (peakIndices1.isEmpty()) {
             return new int[0];
         }
 
