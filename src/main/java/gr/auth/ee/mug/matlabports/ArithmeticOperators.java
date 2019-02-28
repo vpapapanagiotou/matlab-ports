@@ -142,9 +142,7 @@ public final class ArithmeticOperators {
      * @param v The value to multiply with.
      */
     public static void multiplyInPlace(@Nonnull double[] x, double v) {
-        for (int i = 0; i < x.length; i++) {
-            x[i] *= v;
-        }
+        multiply(x, v, x);
     }
 
     /**
@@ -174,6 +172,24 @@ public final class ArithmeticOperators {
     public static void multiplyInPlace(@Nonnull int[] x, int v) {
         for (int i = 0; i < x.length; i++) {
             x[i] *= v;
+        }
+    }
+
+    /**
+     * Multiplies each element of an array with a value.
+     * <p>
+     * MATLAB:
+     * <pre>{@code y = x * v;}</pre>
+     *
+     * @param x The input array.
+     * @param v The value to multiply with.
+     * @param y The resulting array.
+     */
+    public static void multiply(@Nonnull double[] x, double v, @Nonnull double[] y) {
+        checkEqualLength(x, y);
+
+        for (int i = 0; i < x.length; i++) {
+            y[i] = v * x[i];
         }
     }
 
@@ -230,5 +246,63 @@ public final class ArithmeticOperators {
         final double[] z = new double[x.length];
         subtract(x, y, z);
         return z;
+    }
+
+    /**
+     * Index of minimum element of an array. If there are multiple minimum
+     * elements, the index of the first is returned.
+     * <p>
+     * MATLAB:
+     * <pre>{@code [~, idx] = min(x);}</pre>
+     *
+     * @param x The array
+     * @return The index of the minimum element of x
+     */
+    public static int minIdx(@Nonnull double[] x) {
+        if (x.length == 0) {
+            return -1;
+        }
+        if (x.length == 1) {
+            return 0;
+        }
+
+        int idx = 0;
+
+        for (int i = 0; i < x.length; i++) {
+            if (x[i] < x[idx]) {
+                idx = i;
+            }
+        }
+
+        return idx;
+    }
+
+    /**
+     * Index of maximum element of an array. If there are multiple maximum
+     * elements, the index of the first is returned.
+     * <p>
+     * MATLAB:
+     * <pre>{@code [~, idx] = max(x);}</pre>
+     *
+     * @param x The array
+     * @return The index of the maximum element of x
+     */
+    public static int maxIdx(@Nonnull double[] x) {
+        if (x.length == 0) {
+            return -1;
+        }
+        if (x.length == 1) {
+            return 0;
+        }
+
+        int idx = 0;
+
+        for (int i = 0; i < x.length; i++) {
+            if (x[i] > x[idx]) {
+                idx = i;
+            }
+        }
+
+        return idx;
     }
 }

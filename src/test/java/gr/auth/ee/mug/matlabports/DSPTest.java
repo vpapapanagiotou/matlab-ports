@@ -12,13 +12,13 @@ public class DSPTest {
 
     @Test
     void estimateFs1() {
-        final long[] t = new long[]{1, 2, 3, 4, 5, 6, 7};
+        final double[] t = new double[]{1, 2, 3, 4, 5, 6, 7};
         assert 1 == gr.auth.ee.mug.matlabports.DSP.estimateFs(t);
     }
 
     @Test
     void estimateFs2() {
-        final long[] t = new long[]{1, 2, 3, 4, 5, 6, 7};
+        final double[] t = new double[]{1, 2, 3, 4, 5, 6, 7};
 
         double efs;
         try {
@@ -34,7 +34,7 @@ public class DSPTest {
     void estimateFs3() {
         final int n = 4;
 
-        final long[] t = new long[n];
+        final double[] t = new double[n];
         for (int i = 0; i < t.length; i++) {
             t[i] = i * 1000;
         }
