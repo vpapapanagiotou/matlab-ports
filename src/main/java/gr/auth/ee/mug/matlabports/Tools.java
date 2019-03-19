@@ -36,7 +36,7 @@ public final class Tools {
                 return 3600;
 
             case DAYS:
-                return 24 * 3600;
+                return 24 * 3600.0;
 
             default:
                 throw new UnknownTimeUnitException();

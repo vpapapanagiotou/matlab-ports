@@ -321,7 +321,7 @@ public final class DSP {
 
         final boolean[] b = createSelector(i1, 1, i2, dt.length);
         final double[] sdt = select(dt, b);
-        return getTimeFactor(timeUnit) / mean(sdt);
+        return 1 / getTimeFactor(timeUnit) / mean(sdt);
     }
 
     /**
