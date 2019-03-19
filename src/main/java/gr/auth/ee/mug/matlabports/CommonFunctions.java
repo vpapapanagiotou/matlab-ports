@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 
+import gr.auth.ee.mug.matlabports.exceptions.LengthMismatchException;
+
 import static gr.auth.ee.mug.matlabports.Checks.checkEqualLength;
 
 
@@ -132,7 +134,8 @@ public final class CommonFunctions {
      * @param y The second of the two input arrays.
      * @return The inner product.
      */
-    public static double innerProduct(@Nonnull double[] x, @Nonnull double[] y) {
+    public static double innerProduct(@Nonnull double[] x, @Nonnull double[] y)
+            throws LengthMismatchException {
         checkEqualLength(x, y);
 
         double z = 0;
@@ -348,6 +351,23 @@ public final class CommonFunctions {
     }
 
     /**
+     * Sqrt of an array.
+     * <p>
+     * MATLAB:
+     * <pre>{@code y = sqrt(x);}</pre>
+     *
+     * @param x The input array.
+     * @param y The output array.
+     */
+    public static void sqrt(@Nonnull double[] x, @Nonnull double[] y) throws LengthMismatchException {
+        checkEqualLength(x, y);
+
+        for (int i = 0; i < x.length; i++) {
+            y[i] = Math.sqrt(x[i]);
+        }
+    }
+
+    /**
      * Unbiased standard deviation of an array.
      * <p>
      * MATLAB:
@@ -439,7 +459,7 @@ public final class CommonFunctions {
      * @return The unique array.
      */
     @Nonnull
-    public static double[] unique(@Nonnull double[] x) {
+    public static double[] unique(@Nonnull double[] x) throws LengthMismatchException {
         // Initialise selected items array
         boolean[] s = new boolean[x.length];
 

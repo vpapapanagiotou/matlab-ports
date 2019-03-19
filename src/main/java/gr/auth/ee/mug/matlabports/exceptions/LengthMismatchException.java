@@ -4,7 +4,7 @@ import javax.annotation.Nullable;
 
 
 @SuppressWarnings({"unused", "WeakerAccess"})
-public class LengthMismatchException extends RuntimeException {
+public class LengthMismatchException extends Exception {
     public LengthMismatchException() {
         super();
     }

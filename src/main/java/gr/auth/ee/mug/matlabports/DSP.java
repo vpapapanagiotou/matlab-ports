@@ -69,11 +69,11 @@ public final class DSP {
      * @param y The second input array
      * @return The coefficient value
      */
-    public static double corr(@Nonnull double[] x, @Nonnull double[] y) {
+    public static double corr(@Nonnull double[] x, @Nonnull double[] y) throws LengthMismatchException {
         checkEqualLength(x, y);
 
-        final double x0[] = add(x, -mean(x));
-        final double y0[] = add(y, -mean(y));
+        final double[] x0 = add(x, -mean(x));
+        final double[] y0 = add(y, -mean(y));
         final double r = innerProduct(x0, y0) / (normL2(x0) * normL2(y0));
 
         return r;
@@ -87,7 +87,7 @@ public final class DSP {
      * @return The Delta Coefficients of x
      */
     @Nonnull
-    public static double[] deltaCoeffs(@Nonnull double[] x, int D) {
+    public static double[] deltaCoeffs(@Nonnull double[] x, int D) throws LengthMismatchException {
         // TODO This is not checked yet.
         if (x.length == 0) {
             throw new LengthMismatchException();
@@ -138,7 +138,8 @@ public final class DSP {
      * @param m     Parameter that defines the length of the structure element
      * @param shift If true, output array is shifted by -1
      */
-    public static void dil1d(@Nonnull double[] x, @Nonnull double[] y, int m, boolean shift) {
+    public static void dil1d(@Nonnull double[] x, @Nonnull double[] y, int m, boolean shift)
+            throws LengthMismatchException {
         // TODO This is not checked yet.
         if (x.length != y.length) {
             throw new LengthMismatchException();
@@ -186,7 +187,7 @@ public final class DSP {
      * @return The dilated array
      */
     @Nonnull
-    public static double[] dil1d(@Nonnull double[] x, int m, boolean shift) {
+    public static double[] dil1d(@Nonnull double[] x, int m, boolean shift) throws LengthMismatchException {
         // TODO This is not checked yet.
         // Allocate output vector
         double[] y = new double[x.length];
@@ -203,7 +204,7 @@ public final class DSP {
      * @return The dilated array
      */
     @Nonnull
-    public static double[] dil1d(@Nonnull double[] x, int m) {
+    public static double[] dil1d(@Nonnull double[] x, int m) throws LengthMismatchException {
         // TODO This is not checked yet.
         return dil1d(x, m, false);
     }
@@ -216,7 +217,8 @@ public final class DSP {
      * @param m     Parameter that defines the length of the stucturing element
      * @param shift If true, output array is shifted by -1
      */
-    public static void ero1d(@Nonnull double[] x, @Nonnull double[] y, int m, boolean shift) {
+    public static void ero1d(@Nonnull double[] x, @Nonnull double[] y, int m, boolean shift)
+            throws LengthMismatchException {
         // TODO This is not checked yet.
         if (x.length != y.length) {
             throw new LengthMismatchException();
@@ -264,7 +266,7 @@ public final class DSP {
      * @return The eroded array
      */
     @Nonnull
-    public static double[] ero1d(@Nonnull double[] x, int m, boolean shift) {
+    public static double[] ero1d(@Nonnull double[] x, int m, boolean shift) throws LengthMismatchException {
         // TODO This is not checked yet.
         // Allocate output vector
         double[] y = new double[x.length];
@@ -281,7 +283,7 @@ public final class DSP {
      * @return The eroded array
      */
     @Nonnull
-    public static double[] ero1d(@Nonnull double[] x, int m) {
+    public static double[] ero1d(@Nonnull double[] x, int m) throws LengthMismatchException {
         // TODO This is not checked yet.
         return ero1d(x, m, false);
     }
@@ -292,13 +294,9 @@ public final class DSP {
      * @param t The timestamps (in sec)
      * @return The estimated sampling frequency
      */
-    public static double estimateFs(@Nonnull double[] t) {
-        try {
-            return estimateFs(t, TimeUnit.SECONDS);
-        } catch (UnknownTimeUnitException e) {
-            // this can never happen
-            return -1;
-        }
+    public static double estimateFs(@Nonnull double[] t)
+            throws LengthMismatchException, BadArrayLengthException, UnknownTimeUnitException {
+        return estimateFs(t, TimeUnit.SECONDS);
     }
 
     /**
@@ -309,7 +307,7 @@ public final class DSP {
      * @return The estimated sampling frequency
      */
     public static double estimateFs(@Nonnull double[] t, @Nonnull TimeUnit timeUnit)
-            throws UnknownTimeUnitException {
+            throws BadArrayLengthException, LengthMismatchException, UnknownTimeUnitException {
 
         if (t.length < 2) {
             throw new BadArrayLengthException("Too short array t; is " + t.length + " (should be >= 2)");
@@ -495,7 +493,7 @@ public final class DSP {
      * @param n Parameter that defines the length of the stucture element
      * @return The image-opened array
      */
-    public static double[] imopen(double[] x, int n) {
+    public static double[] imopen(double[] x, int n) throws LengthMismatchException {
         // TODO This is not checked yet.
         // Check if x is null
         if (x == null) {

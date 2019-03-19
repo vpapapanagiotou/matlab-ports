@@ -2,6 +2,8 @@ package gr.auth.ee.mug.matlabports;
 
 import javax.annotation.Nonnull;
 
+import gr.auth.ee.mug.matlabports.exceptions.LengthMismatchException;
+
 import static gr.auth.ee.mug.matlabports.Checks.checkEqualLength;
 import static gr.auth.ee.mug.matlabports.CommonFunctions.sum;
 import static java.lang.Integer.signum;
@@ -34,7 +36,7 @@ public final class SelectorsSetters {
         if (start < 0) {
             start = n + start;
         }
-        if (stop < 0 ) {
+        if (stop < 0) {
             stop = n + stop;
         }
 
@@ -96,7 +98,8 @@ public final class SelectorsSetters {
      */
     @Deprecated
     @Nonnull
-    public static boolean[] select(@Nonnull boolean[] b, int start, int step, int stop) {
+    public static boolean[] select(@Nonnull boolean[] b, int start, int step, int stop)
+            throws LengthMismatchException {
         final boolean[] selector = createSelector(start, step, stop, b.length);
         return select(b, selector);
     }
@@ -116,7 +119,8 @@ public final class SelectorsSetters {
      */
     @Deprecated
     @Nonnull
-    public static double[] select(@Nonnull double[] x, int start, int step, int stop) {
+    public static double[] select(@Nonnull double[] x, int start, int step, int stop)
+            throws LengthMismatchException {
         final boolean[] selector = createSelector(start, step, stop, x.length);
         return select(x, selector);
     }
@@ -132,7 +136,7 @@ public final class SelectorsSetters {
      * @return The selected items.
      */
     @Nonnull
-    public static double[] select(@Nonnull double[] x, @Nonnull boolean[] b) {
+    public static double[] select(@Nonnull double[] x, @Nonnull boolean[] b) throws LengthMismatchException {
         checkEqualLength(x, b);
 
         final int n = sum(b);
@@ -163,7 +167,7 @@ public final class SelectorsSetters {
      * @return The selected items.
      */
     @Nonnull
-    public static int[] select(@Nonnull int[] x, @Nonnull boolean[] b) {
+    public static int[] select(@Nonnull int[] x, @Nonnull boolean[] b) throws LengthMismatchException {
         checkEqualLength(x, b);
 
         final int n = sum(b);
@@ -194,7 +198,8 @@ public final class SelectorsSetters {
      * @return The selected items.
      */
     @Nonnull
-    public static boolean[] select(@Nonnull boolean[] x, @Nonnull boolean[] b) {
+    public static boolean[] select(@Nonnull boolean[] x, @Nonnull boolean[] b)
+            throws LengthMismatchException {
         checkEqualLength(x, b);
 
         final int n = sum(b);
@@ -225,7 +230,7 @@ public final class SelectorsSetters {
      * @return The selected items.
      */
     @Nonnull
-    public static long[] select(@Nonnull long[] x, @Nonnull boolean[] b) {
+    public static long[] select(@Nonnull long[] x, @Nonnull boolean[] b) throws LengthMismatchException {
         checkEqualLength(x, b);
 
         final int n = sum(b);
@@ -348,6 +353,21 @@ public final class SelectorsSetters {
     }
 
     /**
+     * Set an array to a single value. Operation is <b>in place</b>.
+     * <p>
+     * MATLAB:
+     * <pre>{@code x(:) = v;}</pre>
+     *
+     * @param x The array to modify.
+     * @param v The value to set selected values
+     */
+    public static void set(@Nonnull double[] x, double v) {
+        for (int i = 0; i < x.length; i++) {
+            x[i] = v;
+        }
+    }
+
+    /**
      * Set part of an array to a single value. Operation is <b>in place</b>.
      * <p>
      * MATLAB:
@@ -409,7 +429,10 @@ public final class SelectorsSetters {
      */
     public static void set(@Nonnull boolean[] x, @Nonnull boolean[] b, boolean v) {
         for (int i = 0; i < x.length; i++) {
-            x[i] = v;
+            if (b[i]) {
+                x[i] = v;
+            }
         }
     }
+
 }
