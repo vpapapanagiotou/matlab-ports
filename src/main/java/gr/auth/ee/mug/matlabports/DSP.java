@@ -316,8 +316,9 @@ public final class DSP {
         final double[] dt = diff(t);
         Arrays.sort(dt);
         final int n = dt.length;
-        final int i1 = (int) Math.round(.1 * n);
-        final int i2 = (int) Math.round(.9 * n) - 1;
+        final int i1 = Math.max(0, (int) Math.round(.1 * n) - 1);
+        final int i2 = Math.min(n-1, (int) Math.round(.9 * n) - 1);
+
 
         final boolean[] b = createSelector(i1, 1, i2, dt.length);
         final double[] sdt = select(dt, b);
