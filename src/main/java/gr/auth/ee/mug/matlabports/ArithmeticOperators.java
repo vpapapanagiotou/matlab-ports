@@ -27,11 +27,29 @@ public final class ArithmeticOperators {
 
         final int n = x.length;
         final double[] z = new double[n];
-        for (int i = 0; i < n; i++) {
-            z[i] = x[i] + y[i];
-        }
+        add(x, y, z);
+
 
         return z;
+    }
+
+    /**
+     * Adds two arrays element-wise.
+     * <p>
+     * MATLAB:
+     * <pre>{@code z = x + y;}</pre>
+     *
+     * @param x The first input array.
+     * @param y The first output array.
+     * @param z The sum of the two arrays.
+     */
+    public static void add(@Nonnull double[] x, @Nonnull double[] y, @Nonnull double[] z) {
+        checkEqualLength(x, y);
+        checkEqualLength(x, z);
+
+        for (int i = 0; i < x.length; i++) {
+            z[i] = x[i] + y[i];
+        }
     }
 
     /**

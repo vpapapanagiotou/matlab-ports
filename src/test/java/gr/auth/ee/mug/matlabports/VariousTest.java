@@ -9,5 +9,7 @@ class VariousTest {
 
     @Test
     void hist() {
+        final int x = (int) 5.6;
+        System.out.println("x = " + x);
     }
 }

@@ -411,6 +411,23 @@ public final class CommonFunctions {
     }
 
     /**
+     * Sqrt of an array.
+     * <p>
+     * MATLAB:
+     * <pre>{@code y = sqrt(x);}</pre>
+     *
+     * @param x The input array.
+     * @param y The output array.
+     */
+    public static void sqrt(@Nonnull double[] x, @Nonnull double[] y) {
+        checkEqualLength(x, y);
+
+        for (int i = 0; i < x.length; i++) {
+            y[i] = Math.sqrt(x[i]);
+        }
+    }
+
+    /**
      * Sum of an array.
      * <p>
      * MATLAB:

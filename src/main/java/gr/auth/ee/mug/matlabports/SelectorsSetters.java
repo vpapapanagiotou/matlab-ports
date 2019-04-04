@@ -34,7 +34,7 @@ public final class SelectorsSetters {
         if (start < 0) {
             start = n + start;
         }
-        if (stop < 0 ) {
+        if (stop < 0) {
             stop = n + stop;
         }
 
@@ -345,6 +345,21 @@ public final class SelectorsSetters {
         }
 
         return y;
+    }
+
+    /**
+     * Set an array to a single value. Operation is <b>in place</b>.
+     * <p>
+     * MATLAB:
+     * <pre>{@code x(:) = v;}</pre>
+     *
+     * @param x The array to modify.
+     * @param v The value to set selected values
+     */
+    public static void set(@Nonnull double[] x, double v) {
+        for (int i = 0; i < x.length; i++) {
+            x[i] = v;
+        }
     }
 
     /**
