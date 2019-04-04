@@ -2,8 +2,8 @@ package gr.auth.ee.mug.matlabports;
 
 import org.junit.jupiter.api.Test;
 
-import static gr.auth.ee.mug.matlabports.SelectorsSetters.createSelector;
-import static gr.auth.ee.mug.matlabports.SelectorsSetters.find;
+import gr.auth.ee.mug.matlabports.exceptions.BadArrayLengthException;
+import gr.auth.ee.mug.matlabports.exceptions.LengthMismatchException;
 
 
 public class IIRFilterTest {
@@ -14,7 +14,11 @@ public class IIRFilterTest {
         final double[] b = new double[]{1, 0};
         final double[] x = new double[]{1, 2, 3, 4, 5, 6, 7};
         final double[] y = new double[x.length];
-        new IIRFilter(b, a).apply(x,y);
+        try {
+            new IIRFilter(b, a).apply(x, y);
+        } catch (LengthMismatchException | BadArrayLengthException e) {
+            e.printStackTrace();
+        }
 
         System.out.println(y);
     }

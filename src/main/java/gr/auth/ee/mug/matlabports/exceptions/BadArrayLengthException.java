@@ -4,7 +4,7 @@ import javax.annotation.Nullable;
 
 
 @SuppressWarnings({"unused", "WeakerAccess"})
-public class BadArrayLengthException extends RuntimeException {
+public class BadArrayLengthException extends Exception {
     public BadArrayLengthException() {
         super();
     }

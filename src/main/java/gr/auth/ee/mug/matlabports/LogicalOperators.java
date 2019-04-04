@@ -2,6 +2,8 @@ package gr.auth.ee.mug.matlabports;
 
 import javax.annotation.Nonnull;
 
+import gr.auth.ee.mug.matlabports.exceptions.LengthMismatchException;
+
 import static gr.auth.ee.mug.matlabports.Checks.checkEqualLength;
 
 
@@ -22,7 +24,7 @@ public final class LogicalOperators {
      * @return A new array containing the result.
      */
     @Nonnull
-    public static boolean[] and(@Nonnull boolean[] x, @Nonnull boolean[] y) {
+    public static boolean[] and(@Nonnull boolean[] x, @Nonnull boolean[] y) throws LengthMismatchException {
         checkEqualLength(x, y);
 
         final boolean[] z = new boolean[x.length];
@@ -123,7 +125,7 @@ public final class LogicalOperators {
      * @return A boolean array with the oposive values of the input array.
      */
     @Nonnull
-    public static boolean[] not(@Nonnull boolean[] b) {
+    public static boolean[] not(@Nonnull boolean[] b) throws LengthMismatchException {
         final boolean[] nb = new boolean[b.length];
         not(b, nb);
 
@@ -139,7 +141,7 @@ public final class LogicalOperators {
      * @param in  The input array.
      * @param out The output array.
      */
-    public static void not(@Nonnull boolean[] in, @Nonnull boolean[] out) {
+    public static void not(@Nonnull boolean[] in, @Nonnull boolean[] out) throws LengthMismatchException {
         checkEqualLength(in, out);
 
         for (int i = 0; i < in.length; i++) {
@@ -155,7 +157,7 @@ public final class LogicalOperators {
      *
      * @param b The boolean array.
      */
-    public static void notInPlace(@Nonnull boolean[] b) {
+    public static void notInPlace(@Nonnull boolean[] b) throws LengthMismatchException {
         not(b, b);
     }
 }

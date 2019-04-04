@@ -1,5 +1,8 @@
 package gr.auth.ee.mug.matlabports;
 
+import gr.auth.ee.mug.matlabports.exceptions.LengthMismatchException;
+
+
 public class ArithmeticOperatorsTest {
 
     @org.junit.jupiter.api.Test
@@ -7,7 +10,11 @@ public class ArithmeticOperatorsTest {
 
         double[] x = new double[]{1, 2, 3, 4, 4};
         double v = 1.1;
-        ArithmeticOperators.multiplyInPlace(x, v);
+        try {
+            ArithmeticOperators.multiplyInPlace(x, v);
+        } catch (LengthMismatchException e) {
+            e.printStackTrace();
+        }
 
         System.out.println(x);
     }

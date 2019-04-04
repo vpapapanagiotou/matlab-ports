@@ -5,13 +5,15 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.TimeUnit;
 
 import gr.auth.ee.mug.matlabports.DSP;
+import gr.auth.ee.mug.matlabports.exceptions.BadArrayLengthException;
+import gr.auth.ee.mug.matlabports.exceptions.LengthMismatchException;
 import gr.auth.ee.mug.matlabports.exceptions.UnknownTimeUnitException;
 
 
 public class DSPTest {
 
     @Test
-    void estimateFs1() {
+    void estimateFs1() throws UnknownTimeUnitException, LengthMismatchException, BadArrayLengthException {
         final double[] t = new double[]{1, 2, 3, 4, 5, 6, 7};
         assert 1 == gr.auth.ee.mug.matlabports.DSP.estimateFs(t);
     }
@@ -23,7 +25,7 @@ public class DSPTest {
         double efs;
         try {
             efs = gr.auth.ee.mug.matlabports.DSP.estimateFs(t, TimeUnit.MILLISECONDS);
-        } catch (UnknownTimeUnitException e) {
+        } catch (UnknownTimeUnitException | BadArrayLengthException | LengthMismatchException e) {
             efs = -1;
         }
 
@@ -42,7 +44,7 @@ public class DSPTest {
         double efs;
         try {
             efs = DSP.estimateFs(t, TimeUnit.MILLISECONDS);
-        } catch (UnknownTimeUnitException e) {
+        } catch (UnknownTimeUnitException | BadArrayLengthException | LengthMismatchException e) {
             efs = -1;
         }
 
