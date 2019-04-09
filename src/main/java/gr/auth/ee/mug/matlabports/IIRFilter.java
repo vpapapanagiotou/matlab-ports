@@ -51,8 +51,12 @@ public class IIRFilter {
         set(yPast, 0);
     }
 
-    public void apply(@Nonnull double[] x, @Nonnull double[] y) throws LengthMismatchException {
+    public void apply(@Nonnull double[] x, @Nonnull double[] y) throws LengthMismatchException, BadArrayLengthException {
         checkEqualLength(x, y);
+
+        if (x.length < xPast.length) {
+            throw new BadArrayLengthException("Refusing to work for input shorter than the filter length");
+        }
 
         int i;  // Index of output that we are computing
         int j;  // Lag index
