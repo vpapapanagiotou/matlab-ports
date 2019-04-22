@@ -1,7 +1,10 @@
 package gr.auth.ee.mug.matlabports;
 
+import org.apache.commons.math3.util.MathArrays;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
@@ -21,6 +24,7 @@ import static gr.auth.ee.mug.matlabports.SelectorsSetters.select;
 import static gr.auth.ee.mug.matlabports.Tools.getTimeFactor;
 import static gr.auth.ee.mug.matlabports.Tools.toPrimitive;
 import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 
 /**
@@ -317,8 +321,7 @@ public final class DSP {
         Arrays.sort(dt);
         final int n = dt.length;
         final int i1 = Math.max(0, (int) Math.round(.1 * n) - 1);
-        final int i2 = Math.min(n-1, (int) Math.round(.9 * n) - 1);
-
+        final int i2 = min(n - 1, (int) Math.round(.9 * n) - 1);
 
         final boolean[] b = createSelector(i1, 1, i2, dt.length);
         final double[] sdt = select(dt, b);
@@ -368,70 +371,21 @@ public final class DSP {
         }
 
         /* Find peaks */
-        final ArrayList<Integer> peakIndices1 = new ArrayList<Integer>();
-        for (int i = 1; i < x.length - 1; i++) {
-            if (x[i] > x[i - 1] && x[i] >= x[i + 1]) {
-                peakIndices1.add(i);
-            }
-        }
-
-        if (peakIndices1.isEmpty()) {
+        @Nonnull ArrayList<Integer> idx = findPeaksBase(x);
+        if (idx.isEmpty()) {
             return new int[0];
         }
 
-        /* Enforce minimum peak distance */
-        final ArrayList<Integer> peakIndices2 = new ArrayList<Integer>();
-        peakIndices2.add(peakIndices1.get(0));
-        for (int i = 1; i < peakIndices1.size(); i++) {
-            if (peakIndices1.get(i) - peakIndices1.get(i - 1) > minPeakDistance) {
-                peakIndices2.add(peakIndices1.get(i));
-            }
+        if (minPeakProminence > 0) {
+            idx = findPeaksPeakProminence2(x, idx, minPeakProminence);
+        }
+        if (minPeakDistance > 0) {
+            idx = findPeaksPeakDistance(x, idx, minPeakDistance);
         }
 
-        if (peakIndices2.size() == 0) {
-            return new int[0];
-        }
-
-        /* Calculate peak prominence */
-        final double[] peakProminence = new double[peakIndices2.size()];
-        for (int i = 0; i < peakProminence.length; i++) {
-
-            // Peak index
-            final int pIdx = peakIndices2.get(i);
-
-            // Find left segment minimum
-            int i1 = pIdx - 1;
-            double leftMin = x[i1];
-            while (x[i1] < x[pIdx] && i1 > 0) {
-                i1--;
-                if (x[i1] < leftMin) {
-                    leftMin = x[i1];
-                }
-            }
-
-            // Find right segment
-            int i2 = pIdx + 1;
-            double rightMin = x[i2];
-            while (x[i2] < x[pIdx] && i2 < x.length - 1) {
-                i2++;
-                if (x[i2] < rightMin) {
-                    rightMin = x[i2];
-                }
-            }
-
-            // Compute prominence
-            peakProminence[i] = x[pIdx] - max(leftMin, rightMin);
-        }
-
-        // Enforce minimum peak prominence
-        final ArrayList<Integer> peakIndices3 = new ArrayList<Integer>();
-        for (int i = 0; i < peakIndices2.size(); i++) {
-            if (peakProminence[i] > minPeakProminence) {
-                peakIndices3.add(peakIndices2.get(i));
-            }
-        }
-
-        return toPrimitive(peakIndices3, 0);
+        final int[] r = toPrimitive(idx, -1);
+        Arrays.sort(r);
+        return r;
     }
 
     /**
@@ -521,5 +475,175 @@ public final class DSP {
         System.arraycopy(y, n, z, 0, m);
 
         return z;
+    }
+
+    private static ArrayList<Integer> findPeaksBase(@Nonnull double[] x) {
+        @Nonnull final ArrayList<Integer> idx = new ArrayList<>();
+
+        int i = 1;
+        while (i < x.length - 1) {
+            if (x[i] <= x[i - 1]) {
+                i++;
+                continue;
+            }
+
+            int j;
+            for (j = i + 1; j < x.length; j++) {
+                if (x[j] != x[i]) {
+                    if (x[i] > x[j]) {
+                        idx.add(i);
+                    }
+                    break;
+                }
+            }
+
+            i = j;
+        }
+
+        return idx;
+    }
+
+    private static ArrayList<Integer> findPeaksPeakDistance(
+            @Nonnull final double[] x, @Nonnull List<Integer> idx, final double minPeakDistance) {
+
+        // Create index and value arrays for input peaks
+        final int n = idx.size();
+        final double[] idxI = new double[n];
+        final double[] idxV = new double[n];
+        for (int i = 0; i < n; i++) {
+            idxI[i] = idx.get(i);
+            idxV[i] = x[(int) idxI[i]];
+        }
+
+        // Sort these arrays
+        MathArrays.sortInPlace(idxV, MathArrays.OrderDirection.DECREASING, idxI);
+
+        /* Enforce minimum peak distance */
+        final ArrayList<Integer> idx2 = new ArrayList<Integer>();
+        idx2.add((int) idxI[0]);
+        for (int i = 1; i < n; i++) {
+            // Find minimum distance
+            double minDist = Math.abs(idxI[i] - idx2.get(0));
+            for (int j = 1; j < idx2.size(); j++) {
+                minDist = min(minDist, Math.abs(idxI[i] - idx2.get(j)));
+            }
+            // Add index if minDist is small enough
+            if (minDist > minPeakDistance) {
+                idx2.add((int) idxI[i]);
+            }
+        }
+
+        return idx2;
+    }
+
+    private static ArrayList<Integer> findPeaksPeakProminence(
+            @Nonnull final double[] x,
+            @Nonnull final ArrayList<Integer> idx,
+            final double minPeakProminence) {
+
+        /* Calculate peak prominence */
+        final double[] peakProminence = new double[idx.size()];
+
+        for (int i = 0; i < peakProminence.length; i++) {
+
+            // Peak index
+            final int pIdx = idx.get(i);
+
+            // Find left segment minimum
+            int i1 = pIdx - 1;
+            double leftMin = x[i1];
+            while (x[i1] < x[pIdx] && i1 > 0) {
+                i1--;
+                if (x[i1] < leftMin) {
+                    leftMin = x[i1];
+                }
+            }
+
+            // Find right segment
+            int i2 = pIdx + 1;
+            double rightMin = x[i2];
+            while (x[i2] < x[pIdx] && i2 < x.length - 1) {
+                i2++;
+                if (x[i2] < rightMin) {
+                    rightMin = x[i2];
+                }
+            }
+
+            // Compute prominence
+            peakProminence[i] = x[pIdx] - max(leftMin, rightMin);
+        }
+
+        // Enforce minimum peak prominence
+        final ArrayList<Integer> idx2 = new ArrayList<Integer>();
+
+        for (int i = 0; i < idx.size(); i++) {
+            if (peakProminence[i] > minPeakProminence) {
+                idx2.add(idx.get(i));
+            }
+        }
+
+        return idx2;
+    }
+
+    private static ArrayList<Integer> findPeaksPeakProminence2(
+            @Nonnull final double[] x,
+            @Nonnull final ArrayList<Integer> idx,
+            final double minPeakProminence) {
+
+        // Calculate peak prominence values
+        final double[] proms = new double[idx.size()];
+
+        for (int i = 0; i < proms.length; i++) {
+
+            // Current peak
+            final int curI = idx.get(i);
+            final double curV = x[curI];
+
+            // Left and right peaks/edges
+            int leftEdgeI = 0;
+            for (int j = i - 1; j >= 0; j--) {
+                if (curV < x[idx.get(j)]) {
+                    leftEdgeI = idx.get(j);
+                    break;
+                }
+            }
+
+            int rightEdgeI = x.length - 1;
+            for (int j = i + 1; j < idx.size(); j++) {
+                if (curV < x[idx.get(j)]) {
+                    rightEdgeI = idx.get(j);
+                    break;
+                }
+            }
+
+            // Find left and right minima
+            double leftMinV = x[leftEdgeI];
+            for (int j = leftEdgeI + 1; j < curI; j++) {
+                if (x[j] < leftMinV) {
+                    leftMinV = x[j];
+                }
+            }
+
+            double rightMinV = x[curI];
+            for (int j = curI + 1; j <= rightEdgeI; j++) {
+                if (x[j] < rightMinV) {
+                    rightMinV = x[j];
+                }
+            }
+
+            // Compute prominence
+            proms[i] = curV - Math.max(leftMinV, rightMinV);
+        }
+
+        // Enforce minimum peak prominence
+        final ArrayList<Integer> idx2 = new ArrayList<Integer>();
+
+        for (int i = 0; i < idx.size(); i++) {
+            if (proms[i] > minPeakProminence) {
+                idx2.add(idx.get(i));
+            }
+        }
+
+        return idx2;
     }
 }

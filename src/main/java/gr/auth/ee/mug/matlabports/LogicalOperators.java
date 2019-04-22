@@ -56,6 +56,26 @@ public final class LogicalOperators {
     }
 
     /**
+     * Compares an array with a value using the less or equal operator.
+     * <p>
+     * MATLAB:
+     * <pre>{@code b = x -< v;}</pre>
+     *
+     * @param x The input array.
+     * @param v The value to compare to.
+     * @return A boolean array that is true for the elements of x that are less than or equal to v.
+     */
+    @Nonnull
+    public static boolean[] lesseq(@Nonnull double[] x, double v) {
+        final boolean[] b = new boolean[x.length];
+        for (int i = 0; i < x.length; i++) {
+            b[i] = x[i] <= v;
+        }
+
+        return b;
+    }
+
+    /**
      * Compares an array with a value using the less operator.
      * <p>
      * MATLAB:
@@ -70,6 +90,26 @@ public final class LogicalOperators {
         final boolean[] b = new boolean[x.length];
         for (int i = 0; i < x.length; i++) {
             b[i] = x[i] < v;
+        }
+
+        return b;
+    }
+
+    /**
+     * Compares an array with a value using the less or equal operator.
+     * <p>
+     * MATLAB:
+     * <pre>{@code b = x <= v;}</pre>
+     *
+     * @param x The input array.
+     * @param v The value to compare to.
+     * @return A boolean array that is true for the elements of x that are less than or equal to v.
+     */
+    @Nonnull
+    public static boolean[] lesseq(@Nonnull int[] x, double v) {
+        final boolean[] b = new boolean[x.length];
+        for (int i = 0; i < x.length; i++) {
+            b[i] = x[i] <= v;
         }
 
         return b;
@@ -96,6 +136,26 @@ public final class LogicalOperators {
     }
 
     /**
+     * Compares an array with a value using the more or equal operator.
+     * <p>
+     * MATLAB:
+     * <pre>{@code b = x >= v;}</pre>
+     *
+     * @param x The input array (double).
+     * @param v The value to compare to.
+     * @return A boolean array that is true for the elements of x that are more than or equal to v.
+     */
+    @Nonnull
+    public static boolean[] moreeq(@Nonnull double[] x, double v) {
+        final boolean[] b = new boolean[x.length];
+        for (int i = 0; i < x.length; i++) {
+            b[i] = x[i] >= v;
+        }
+
+        return b;
+    }
+
+    /**
      * Compares an array with a value using the more operator.
      * <p>
      * MATLAB:
@@ -110,6 +170,26 @@ public final class LogicalOperators {
         final boolean[] b = new boolean[x.length];
         for (int i = 0; i < x.length; i++) {
             b[i] = x[i] > v;
+        }
+
+        return b;
+    }
+
+    /**
+     * Compares an array with a value using the more or equal operator.
+     * <p>
+     * MATLAB:
+     * <pre>{@code b = x >= v;}</pre>
+     *
+     * @param x The input array.
+     * @param v The value to compare to.
+     * @return A boolean array that is true for the elements of x that are more than or equal to v.
+     */
+    @Nonnull
+    public static boolean[] moreeq(@Nonnull int[] x, double v) {
+        final boolean[] b = new boolean[x.length];
+        for (int i = 0; i < x.length; i++) {
+            b[i] = x[i] >= v;
         }
 
         return b;
