@@ -4,7 +4,6 @@ import org.apache.commons.math3.util.MathArrays;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
@@ -23,7 +22,6 @@ import static gr.auth.ee.mug.matlabports.SelectorsSetters.createSelector;
 import static gr.auth.ee.mug.matlabports.SelectorsSetters.select;
 import static gr.auth.ee.mug.matlabports.Tools.getTimeFactor;
 import static gr.auth.ee.mug.matlabports.Tools.toPrimitive;
-import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 
@@ -32,7 +30,6 @@ import static java.lang.Math.min;
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public final class DSP {
-
     /**
      * Sample auto-correlation for lags 0, 1, ..., m.
      * <p>
@@ -78,20 +75,19 @@ public final class DSP {
 
         final double[] x0 = add(x, -mean(x));
         final double[] y0 = add(y, -mean(y));
-        final double r = innerProduct(x0, y0) / (normL2(x0) * normL2(y0));
 
-        return r;
+        return innerProduct(x0, y0) / (normL2(x0) * normL2(y0));
     }
 
     /**
      * Calculates the Delta Coefficients of an array.
      *
-     * @param x The input array
-     * @param D The parameter that defines the estimation window (equal to 2*D+1)
+     * @param x      The input array
+     * @param paramD The parameter that defines the estimation window (equal to 2 * paramD + 1)
      * @return The Delta Coefficients of x
      */
     @Nonnull
-    public static double[] deltaCoeffs(@Nonnull double[] x, int D) throws LengthMismatchException {
+    public static double[] deltaCoeffs(@Nonnull double[] x, int paramD) throws LengthMismatchException {
         // TODO This is not checked yet.
         if (x.length == 0) {
             throw new LengthMismatchException();
@@ -101,27 +97,27 @@ public final class DSP {
         final int n = x.length;
 
         // Allocate buffer y and output z
-        final double[] y = new double[n + 2 * D];
+        final double[] y = new double[n + 2 * paramD];
         final double[] z = new double[n];
 
         // Fill in buffer y
-        for (int i = 0; i < D; i++) {
+        for (int i = 0; i < paramD; i++) {
             y[i] = x[0];
             y[y.length - 1 - i] = x[n - 1];
         }
-        System.arraycopy(x, 0, y, D, n);
+        System.arraycopy(x, 0, y, paramD, n);
 
         // Calculate result
         for (int i = 0; i < n; i++) {
             z[i] = 0;
-            for (int j = -D; j <= D; j++) {
-                z[i] += j * y[i + D + j];
+            for (int j = -paramD; j <= paramD; j++) {
+                z[i] += j * y[i + paramD + j];
             }
         }
 
         // Normalisation parameter
         double a = 0;
-        for (int i = 1; i <= D; i++) {
+        for (int i = 1; i <= paramD; i++) {
             a += i * i;
         }
         a *= 2;
@@ -377,7 +373,7 @@ public final class DSP {
         }
 
         if (minPeakProminence > 0) {
-            idx = findPeaksPeakProminence2(x, idx, minPeakProminence);
+            idx = findPeaksPeakProminence(x, idx, minPeakProminence);
         }
         if (minPeakDistance > 0) {
             idx = findPeaksPeakDistance(x, idx, minPeakDistance);
@@ -504,7 +500,12 @@ public final class DSP {
     }
 
     private static ArrayList<Integer> findPeaksPeakDistance(
-            @Nonnull final double[] x, @Nonnull List<Integer> idx, final double minPeakDistance) {
+            @Nonnull final double[] x, @Nonnull ArrayList<Integer> idx, final double minPeakDistance) {
+
+        // Empty check
+        if (idx.isEmpty()) {
+            return idx;
+        }
 
         // Create index and value arrays for input peaks
         final int n = idx.size();
@@ -519,7 +520,7 @@ public final class DSP {
         MathArrays.sortInPlace(idxV, MathArrays.OrderDirection.DECREASING, idxI);
 
         /* Enforce minimum peak distance */
-        final ArrayList<Integer> idx2 = new ArrayList<Integer>();
+        final ArrayList<Integer> idx2 = new ArrayList<>();
         idx2.add((int) idxI[0]);
         for (int i = 1; i < n; i++) {
             // Find minimum distance
@@ -527,7 +528,7 @@ public final class DSP {
             for (int j = 1; j < idx2.size(); j++) {
                 minDist = min(minDist, Math.abs(idxI[i] - idx2.get(j)));
             }
-            // Add index if minDist is small enough
+            // Add index if minDist is big enough
             if (minDist > minPeakDistance) {
                 idx2.add((int) idxI[i]);
             }
@@ -541,54 +542,10 @@ public final class DSP {
             @Nonnull final ArrayList<Integer> idx,
             final double minPeakProminence) {
 
-        /* Calculate peak prominence */
-        final double[] peakProminence = new double[idx.size()];
-
-        for (int i = 0; i < peakProminence.length; i++) {
-
-            // Peak index
-            final int pIdx = idx.get(i);
-
-            // Find left segment minimum
-            int i1 = pIdx - 1;
-            double leftMin = x[i1];
-            while (x[i1] < x[pIdx] && i1 > 0) {
-                i1--;
-                if (x[i1] < leftMin) {
-                    leftMin = x[i1];
-                }
-            }
-
-            // Find right segment
-            int i2 = pIdx + 1;
-            double rightMin = x[i2];
-            while (x[i2] < x[pIdx] && i2 < x.length - 1) {
-                i2++;
-                if (x[i2] < rightMin) {
-                    rightMin = x[i2];
-                }
-            }
-
-            // Compute prominence
-            peakProminence[i] = x[pIdx] - max(leftMin, rightMin);
+        // Empty check
+        if (idx.isEmpty()) {
+            return idx;
         }
-
-        // Enforce minimum peak prominence
-        final ArrayList<Integer> idx2 = new ArrayList<Integer>();
-
-        for (int i = 0; i < idx.size(); i++) {
-            if (peakProminence[i] > minPeakProminence) {
-                idx2.add(idx.get(i));
-            }
-        }
-
-        return idx2;
-    }
-
-    private static ArrayList<Integer> findPeaksPeakProminence2(
-            @Nonnull final double[] x,
-            @Nonnull final ArrayList<Integer> idx,
-            final double minPeakProminence) {
 
         // Calculate peak prominence values
         final double[] proms = new double[idx.size()];
@@ -636,7 +593,7 @@ public final class DSP {
         }
 
         // Enforce minimum peak prominence
-        final ArrayList<Integer> idx2 = new ArrayList<Integer>();
+        final ArrayList<Integer> idx2 = new ArrayList<>();
 
         for (int i = 0; i < idx.size(); i++) {
             if (proms[i] > minPeakProminence) {
@@ -645,5 +602,8 @@ public final class DSP {
         }
 
         return idx2;
+    }
+
+    private DSP() {
     }
 }
