@@ -1,6 +1,9 @@
 package gr.auth.ee.mug.matlabports;
 
+import org.apache.commons.math3.stat.descriptive.rank.Median;
 import org.apache.commons.math3.util.MathArrays;
+import org.apache.commons.math3.util.MedianOf3PivotingStrategy;
+import org.junit.jupiter.api.condition.EnabledOnJre;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -381,6 +384,7 @@ public final class DSP {
 
         final int[] r = toPrimitive(idx, -1);
         Arrays.sort(r);
+
         return r;
     }
 
@@ -602,6 +606,32 @@ public final class DSP {
         }
 
         return idx2;
+    }
+
+    public static double[] medfilt1(@Nonnull final double[] x, final int n) {
+
+        // Pad input array with zeros
+        int n2 = n / 2;
+        @Nonnull final double[] xPadded = new double[x.length + 2 * n2];
+        Arrays.fill(xPadded, 0.0);
+        System.arraycopy(x, 0, xPadded, n2, x.length);
+
+        // Create buffer array. It will be used to copy each window of x to compute median over it
+        @Nonnull final double[] w = new double[n];
+
+        // Create output array
+        @Nonnull final double[] y = new double[x.length];
+
+        // Create a median object to estimate medians
+        @Nonnull final Median median = new Median();
+
+        // Estimate medians
+        for (int i = 0; i < y.length; i++) {
+            System.arraycopy(xPadded, i, w, 0, n);
+            y[i] = median.evaluate(w);
+        }
+
+        return y;
     }
 
     private DSP() {

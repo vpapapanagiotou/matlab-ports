@@ -1,9 +1,9 @@
 package gr.auth.ee.mug.matlabports;
 
-import javax.annotation.Nonnull;
-
 import gr.auth.ee.mug.matlabports.exceptions.BadArrayLengthException;
 import gr.auth.ee.mug.matlabports.exceptions.LengthMismatchException;
+
+import javax.annotation.Nonnull;
 
 import static gr.auth.ee.mug.matlabports.Checks.checkEqualLength;
 import static gr.auth.ee.mug.matlabports.SelectorsSetters.set;

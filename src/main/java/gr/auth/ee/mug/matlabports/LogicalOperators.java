@@ -36,6 +36,46 @@ public final class LogicalOperators {
     }
 
     /**
+     * Check if array elements are equal to a specific value.
+     * <p>
+     * MATLAB:
+     * <pre>{@code b = y == v;}</pre>
+     *
+     * @param x The array to check its values.
+     * @param v The value to compare to.
+     * @return A boolean array with the comparison results.
+     */
+    public static boolean[] isEqual(@Nonnull double[] x, double v) {
+        @Nonnull final boolean[] b = new boolean[x.length];
+
+        for (int i = 0; i < x.length; i++) {
+            b[i] = x[i] == v;
+        }
+
+        return b;
+    }
+
+    /**
+     * Check if array elements are equal to a specific value.
+     * <p>
+     * MATLAB:
+     * <pre>{@code b = y == v;}</pre>
+     *
+     * @param x The array to check its values.
+     * @param v The value to compare to.
+     * @return A boolean array with the comparison results.
+     */
+    public static boolean[] isEqual(@Nonnull long[] x, long v) {
+        @Nonnull final boolean[] b = new boolean[x.length];
+
+        for (int i = 0; i < x.length; i++) {
+            b[i] = x[i] == v;
+        }
+
+        return b;
+    }
+
+    /**
      * Compares an array with a value using the less operator.
      * <p>
      * MATLAB:
@@ -47,6 +87,26 @@ public final class LogicalOperators {
      */
     @Nonnull
     public static boolean[] less(@Nonnull double[] x, double v) {
+        final boolean[] b = new boolean[x.length];
+        for (int i = 0; i < x.length; i++) {
+            b[i] = x[i] < v;
+        }
+
+        return b;
+    }
+
+    /**
+     * Compares an array with a value using the less operator.
+     * <p>
+     * MATLAB:
+     * <pre>{@code b = x < v;}</pre>
+     *
+     * @param x The input array.
+     * @param v The value to compare to.
+     * @return A boolean array that is true for the elements of x that are less than v.
+     */
+    @Nonnull
+    public static boolean[] less(@Nonnull int[] x, double v) {
         final boolean[] b = new boolean[x.length];
         for (int i = 0; i < x.length; i++) {
             b[i] = x[i] < v;
@@ -70,26 +130,6 @@ public final class LogicalOperators {
         final boolean[] b = new boolean[x.length];
         for (int i = 0; i < x.length; i++) {
             b[i] = x[i] <= v;
-        }
-
-        return b;
-    }
-
-    /**
-     * Compares an array with a value using the less operator.
-     * <p>
-     * MATLAB:
-     * <pre>{@code b = x < v;}</pre>
-     *
-     * @param x The input array.
-     * @param v The value to compare to.
-     * @return A boolean array that is true for the elements of x that are less than v.
-     */
-    @Nonnull
-    public static boolean[] less(@Nonnull int[] x, double v) {
-        final boolean[] b = new boolean[x.length];
-        for (int i = 0; i < x.length; i++) {
-            b[i] = x[i] < v;
         }
 
         return b;
@@ -136,26 +176,6 @@ public final class LogicalOperators {
     }
 
     /**
-     * Compares an array with a value using the more or equal operator.
-     * <p>
-     * MATLAB:
-     * <pre>{@code b = x >= v;}</pre>
-     *
-     * @param x The input array (double).
-     * @param v The value to compare to.
-     * @return A boolean array that is true for the elements of x that are more than or equal to v.
-     */
-    @Nonnull
-    public static boolean[] moreeq(@Nonnull double[] x, double v) {
-        final boolean[] b = new boolean[x.length];
-        for (int i = 0; i < x.length; i++) {
-            b[i] = x[i] >= v;
-        }
-
-        return b;
-    }
-
-    /**
      * Compares an array with a value using the more operator.
      * <p>
      * MATLAB:
@@ -170,6 +190,26 @@ public final class LogicalOperators {
         final boolean[] b = new boolean[x.length];
         for (int i = 0; i < x.length; i++) {
             b[i] = x[i] > v;
+        }
+
+        return b;
+    }
+
+    /**
+     * Compares an array with a value using the more or equal operator.
+     * <p>
+     * MATLAB:
+     * <pre>{@code b = x >= v;}</pre>
+     *
+     * @param x The input array (double).
+     * @param v The value to compare to.
+     * @return A boolean array that is true for the elements of x that are more than or equal to v.
+     */
+    @Nonnull
+    public static boolean[] moreeq(@Nonnull double[] x, double v) {
+        final boolean[] b = new boolean[x.length];
+        for (int i = 0; i < x.length; i++) {
+            b[i] = x[i] >= v;
         }
 
         return b;
@@ -205,9 +245,15 @@ public final class LogicalOperators {
      * @return A boolean array with the oposive values of the input array.
      */
     @Nonnull
-    public static boolean[] not(@Nonnull boolean[] b) throws LengthMismatchException {
+    public static boolean[] not(@Nonnull boolean[] b) {
         final boolean[] nb = new boolean[b.length];
-        not(b, nb);
+
+        try {
+            not(b, nb);
+        } catch (LengthMismatchException e) {
+            // This sound never happen since we created nb to have equal length to b
+            throw new RuntimeException(e);
+        }
 
         return nb;
     }
@@ -237,7 +283,12 @@ public final class LogicalOperators {
      *
      * @param b The boolean array.
      */
-    public static void notInPlace(@Nonnull boolean[] b) throws LengthMismatchException {
-        not(b, b);
+    public static void notInPlace(@Nonnull boolean[] b) {
+        try {
+            not(b, b);
+        } catch (LengthMismatchException e) {
+            // This should never happen, since we pass the same array to not
+            throw new RuntimeException(e);
+        }
     }
 }

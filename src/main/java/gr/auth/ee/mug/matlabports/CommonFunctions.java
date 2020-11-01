@@ -18,6 +18,23 @@ import static gr.auth.ee.mug.matlabports.Checks.checkEqualLength;
 public final class CommonFunctions {
 
     /**
+     * Computes the absolute value of each item of the array.
+     * <p>
+     *     MATLAB:
+     *     <pre>{@code y = abs(x);}</pre>
+     * </p>
+     * @param x The input array
+     * @param y The array with the absolute values of input
+     */
+    public static void abs(@Nonnull double[] x, @Nonnull double[] y) throws LengthMismatchException {
+        checkEqualLength(x, y);
+
+        for (int i = 0; i < x.length; i++) {
+            y[i] = Math.abs(x[i]);
+        }
+    }
+
+    /**
      * Computes the absolute value of each item of the array. Operation is <b>in place</b>.
      * <p>
      * MATLAB:
@@ -26,8 +43,11 @@ public final class CommonFunctions {
      * @param x The input array
      */
     public static void absInPlace(@Nonnull double[] x) {
-        for (int i = 0; i < x.length; i++) {
-            x[i] = Math.abs(x[i]);
+        try {
+            abs(x, x);
+        } catch (LengthMismatchException e) {
+            // This should never happen
+            e.printStackTrace();
         }
     }
 
@@ -210,7 +230,7 @@ public final class CommonFunctions {
      * @return The average.
      */
     public static double mean(@Nonnull double[] x) {
-        return sum(x) / x.length;
+        return mean(x, 0, x.length);
     }
 
     /**
@@ -223,7 +243,37 @@ public final class CommonFunctions {
      * @return The average.
      */
     public static double mean(@Nonnull long[] x) {
-        return sum(x) / x.length;
+        return mean(x, 0, x.length);
+    }
+
+    /**
+     * Mean of a part of an array.
+     * <p>
+     * MATLAB:
+     * <pre>{@code y = mean(x(start:stop - 1))}</pre>
+     *
+     * @param x     The array to compute the mean of.
+     * @param start The index from which to start computing the mean (inclusive).
+     * @param stop  The index at which to stop computing the mean (exclusive).
+     * @return The partial mean.
+     */
+    public static double mean(@Nonnull final long[] x, final int start, final int stop) {
+        return sum(x, start, stop) / (double) (stop - start);
+    }
+
+    /**
+     * Mean of a part of an array.
+     * <p>
+     * MATLAB:
+     * <pre>{@code y = mean(x(start:stop - 1))}</pre>
+     *
+     * @param x     The array to compute the mean of.
+     * @param start The index from which to start computing the mean (inclusive).
+     * @param stop  The index at which to stop computing the mean (exclusive).
+     * @return The partial mean.
+     */
+    public static double mean(@Nonnull final double[] x, final int start, final int stop) {
+        return sum(x, start, stop) / (stop - start);
     }
 
     /**
@@ -351,6 +401,41 @@ public final class CommonFunctions {
     }
 
     /**
+     * Sign of an array.
+     * <p>
+     * MATLAB:
+     * <pre>{@code y = sign(x);}</pre>
+     *
+     * @param x The input array.
+     * @param y The output: sign of x
+     * @throws LengthMismatchException
+     */
+    public static void sign(@Nonnull double[] x, @Nonnull double[] y) throws LengthMismatchException {
+        checkEqualLength(x, y);
+
+        for (int i = 0; i < x.length; i++) {
+            y[i] = Math.signum(x[i]);
+        }
+    }
+
+    /**
+     * Sign of an array.
+     * <p>
+     * MATLAB:
+     * <pre>{@code x = sign(x);}</pre>
+     *
+     * @param x The array to compute the sign of.
+     */
+    public static void signInPlace(@Nonnull double[] x) {
+        try {
+            sign(x, x);
+        } catch (LengthMismatchException e) {
+            // This should never happen
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * Sqrt of an array.
      * <p>
      * MATLAB:
@@ -391,7 +476,24 @@ public final class CommonFunctions {
      * @return Its standard deviation.
      */
     public static double std(@Nonnull double[] x, boolean unbiased) {
-        return Math.sqrt(var(x, unbiased));
+        return Math.sqrt(var(x, unbiased, 0, x.length));
+    }
+
+    /**
+     * Standard deviation of a part of an array.
+     * <p>
+     * MATLAB:
+     * <pre>{@code y = std(x(start:stop - 1);}</pre>
+     *
+     * @param x        The input array.
+     * @param unbiased If true, the unbiased formula is used (sum is divided by N-1 where N is the number of samples of x that were used in the estimation).
+     * @param start    The index from which to start computing the std (inclusive).
+     * @param stop     The index at which to stop computing the std (exclusive).
+     * @return Its standard deviation.
+     */
+    public static double std(
+            @Nonnull final double[] x, final boolean unbiased, final int start, final int stop) {
+        return Math.sqrt(var(x, unbiased, start, stop));
     }
 
     /**
@@ -404,9 +506,24 @@ public final class CommonFunctions {
      * @return Its sum
      */
     public static double sum(@Nonnull double[] x) {
+        return sum(x, 0, x.length);
+    }
+
+    /**
+     * Sum of a part of an array.
+     * <p>
+     * MATLAB:
+     * <pre>{@code y = sum(x(start:stop - 1))}</pre>
+     *
+     * @param x     The array to compute the sum of.
+     * @param start The index from which to start summing (inclusive).
+     * @param stop  The index at which to stop summing (exclusive).
+     * @return The partial sum.
+     */
+    public static double sum(@Nonnull final double[] x, final int start, final int stop) {
         double y = 0;
-        for (double v : x) {
-            y += v;
+        for (int i = start; i < stop; i++) {
+            y += x[i];
         }
 
         return y;
@@ -421,10 +538,25 @@ public final class CommonFunctions {
      * @param x The input array
      * @return Its sum
      */
-    public static double sum(@Nonnull long[] x) {
-        double y = 0;
-        for (double v : x) {
-            y += v;
+    public static long sum(@Nonnull final long[] x) {
+        return sum(x, 0, x.length);
+    }
+
+    /**
+     * Sum of a part of an array.
+     * <p>
+     * MATLAB:
+     * <pre>{@code y = sum(x(start:stop - 1))}</pre>
+     *
+     * @param x     The array to compute the sum of.
+     * @param start The index from which to start summing (inclusive).
+     * @param stop  The index at which to stop summing (exclusive).
+     * @return The partial sum.
+     */
+    public static long sum(@Nonnull final long[] x, final int start, final int stop) {
+        long y = 0;
+        for (int i = start; i < stop; i++) {
+            y += x[i];
         }
 
         return y;
@@ -439,13 +571,14 @@ public final class CommonFunctions {
      * @param b The input array
      * @return Its sum
      */
-    public static int sum(@Nonnull boolean[] b) {
+    public static int sum(@Nonnull final boolean[] b) {
         int s = 0;
         for (boolean bi : b) {
             if (bi) {
                 s++;
             }
         }
+
         return s;
     }
 
@@ -569,33 +702,51 @@ public final class CommonFunctions {
     }
 
     /**
+     * Variance of a part of an array.
+     * <p>
+     * MATLAB:
+     * <pre>{@code y = var(x(start:stop - 1));}</pre>
+     *
+     * @param x        The input array.
+     * @param unbiased If true, the unbiased formula is used (sum is divided by N-1 where N is the number of samples of x that were used in the estimation).
+     * @param start    The index from which to start computing the variance (inclusive).
+     * @param stop     The index at which to stop computing the variance (exclusive).
+     * @return The variance.
+     */
+    public static double var(
+            @Nonnull final double[] x, final boolean unbiased, final int start, final int stop) {
+
+        // Estimate mean of x
+        double mu = mean(x, start, stop);
+
+        // Initialise sum
+        double y = 0;
+
+        // Loop and update sum
+        for (int i = start; i < stop; i++) {
+            y += Math.pow(x[i] - mu, 2);
+        }
+
+        if (unbiased) {
+            y /= stop - start - 1;
+        } else {
+            y /= stop - start;
+        }
+
+        return y;
+    }
+
+    /**
      * Variance of an array.
      * <p>
      * MATLAB:
      * <pre>{@code y = var(x);}</pre>
      *
      * @param x        The input array.
-     * @param unbiased If true, the unbiased formula is used (sum is divided by N-1 where N is the length of x).
+     * @param unbiased If true, the unbiased formula is used (sum is divided by N-1 where N is the number of samples of x that were used in the estimation).
      * @return The variance.
      */
-    public static double var(@Nonnull double[] x, boolean unbiased) {
-        // Estimate mean of x
-        double mu = mean(x);
-
-        // Initialise sum
-        double y = 0;
-
-        // Loop and update sum
-        for (double v : x) {
-            y += Math.pow(v - mu, 2);
-        }
-
-        if (unbiased) {
-            y /= x.length - 1;
-        } else {
-            y /= x.length;
-        }
-
-        return y;
+    public static double var(@Nonnull final double[] x, final boolean unbiased) {
+        return var(x, unbiased, 0, x.length);
     }
 }
